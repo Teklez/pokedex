@@ -1,4 +1,3 @@
-
 import { State } from "./state.js";
 
 function cleanInput(input: string): string[] {
@@ -6,7 +5,7 @@ function cleanInput(input: string): string[] {
     .toLowerCase()
     .trim()
     .split(" ")
-    .filter((item) => item != null);
+    .filter((item) => item != "");
 }
 
 async function startREPL(state: State) {
@@ -24,7 +23,10 @@ async function startREPL(state: State) {
       console.log();
       if (cleanedInput[0] in commands) {
         try {
-          await commands[cleanedInput[0]].callback(state);
+          await commands[cleanedInput[0]].callback(
+            state,
+            ...cleanedInput.slice(1)
+          );
         } catch (err) {
           if (err instanceof Error) {
             console.log(err.message);

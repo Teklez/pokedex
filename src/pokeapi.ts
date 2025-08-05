@@ -1,5 +1,6 @@
 import { Cache } from "./pokecache.js";
 import { CacheEntry } from "./pokecache.js";
+import { Pokemon } from "./types.js";
 export class PokeAPI {
   private static readonly baseURL = "https://pokeapi.co/api/v2";
   #catch = new Cache(1000);
@@ -56,6 +57,33 @@ export class PokeAPI {
     } catch (e) {
       throw new Error(
         `Error fetching location '${locationName}': ${(e as Error).message}`
+      );
+    }
+  }
+
+  async fetchPokemonDetail(pokemonName: string): Promise<Pokemon> {
+    const url = `${PokeAPI.baseURL}/pokemon/${pokemonName}`;
+    try {
+      const cacheExists = this.#catch.get(url);
+      if (cacheExists) {
+        return cacheExists.value;
+      }
+
+      const resp = await fetch(url);
+      if (!resp.ok) {
+        throw new Error(`${resp.status} ${resp.statusText}`);
+      }
+      const pokemon: Pokemon = await resp.json();
+      const entry: CacheEntry<Pokemon> = {
+        createdAt: Date.now(),
+        value: pokemon,
+      };
+
+      this.#catch.add(url, entry);
+      return pokemon;
+    } catch (e) {
+      throw new Error(
+        `Error fetching location '${pokemonName}': ${(e as Error).message}`
       );
     }
   }

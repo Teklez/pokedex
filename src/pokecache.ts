@@ -16,7 +16,7 @@ export class Cache {
   #reap() {
     const life = Date.now() - this.#interval;
     for (const [key, value] of this.#cache) {
-      if (life > this.#interval) {
+      if (life > value.createdAt) {
         this.#cache.delete(key);
       }
     }
@@ -27,7 +27,7 @@ export class Cache {
     this.#reapIntervalID = reapIntervalID;
   }
 
-  #stopLoop() {
+  stopReapLoop() {
     const reapIntervalID = this.#reapIntervalID;
     clearInterval(reapIntervalID);
     this.#reapIntervalID = undefined;
